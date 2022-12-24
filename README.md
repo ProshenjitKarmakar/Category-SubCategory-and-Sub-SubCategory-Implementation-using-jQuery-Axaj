@@ -1,64 +1,245 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Category SubCategory and Sub SubCategory Implementation
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This is Dynamic Dependency Category SubCategory and Sub SubCategory using jQuery AJAX. 
+I take one model named 'Category'. There is a field in "Category" model named "parent_id".
+I match Category model's "id" with "parent_id" and findout the result using Query.
 
-## About Laravel
+## Sub SubCategory Implementation
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Now those "parent_id" became Sub SubCategory "id". Again I matched Sub SubCategory "id"
+which is mainly from "parent_id" with "parent_id" and findout the product as result 
+using Query.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Installation
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Installing this project first download the project and run this command on terminal
 
-## Learning Laravel
+```bash
+  php artisan serve
+```
+    
+## File management
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- There is a controller named "CategoryController". All methods are given there.
+```bash
+  path : App/Http/Controllers/CategoryController.php
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- There is one model named "Category".
+```bash
+  path :  App/Models/Category.php.
+```
 
-## Laravel Sponsors
+- There is a file named 'resources/views'. All frontend code are given there.
+```bash
+  path :  resources/views/product.blade.php.
+          resources/views/catShow.blade.php.
+          resources/views/subcatShow.blade.php.   
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+## Controller Methods
 
-### Premium Partners
+```javascript
+<?php
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+namespace App\Http\Controllers;
 
-## Contributing
+use Illuminate\Http\Request;
+use App\Model\Category;
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+class CategoryController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $categories = Category::select('id', 'name')->get();
+        return view('product', compact('categories'));
+    }
 
-## Code of Conduct
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+      // Subcat Show
+    public function showCategory(Request $request)
+    {
+        $cat_id = $request->id;
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+        $categories = Category::where('parent_id', $cat_id)
+                            ->select('name', 'icon','id')
+                            ->get();
 
-## Security Vulnerabilities
+        // dd($category);
+        return view('catShow',compact('categories'));
+    }
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+    // Sub Subcat Show
+    public function showSubCategory(Request $request)
+    {
+        $subCat_id = $request->id;
+        // dd($subCat_id);
 
-## License
+        $subCategories = Category::where('parent_id', $subCat_id)
+                            ->select('name', 'icon','id')
+                            ->get();
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+        // dd($subCategories);
+        return view('subCatShow',compact('subCategories'));
+    }
+
+
+}
+
+```
+
+
+## jQuery Ajax Dependency Injection
+
+```javascript
+<script>
+        jQuery(document).ready(function(){
+            jQuery('#category').change(function(){
+                var category_id = jQuery(this).val();
+                // console.log(category_id);
+
+                $.ajax({
+                    url     : 'showCategory',
+                    type    : 'GET',
+                    dataType: 'html',
+                    data    :{
+                        id : category_id,
+                    },
+
+                    success : function(response){
+                        // console.log(response);
+                        jQuery('#allCategory').html(response);
+                    },
+                });
+            });
+        });
+
+        jQuery(document).on('click','.subCatView',function()
+        {
+            var subCatid = jQuery(this).data('id');
+            // console.log(id);
+
+            $.ajax({
+                    url     : 'showSubCategory',
+                    type    : 'GET',
+                    dataType: 'html',
+                    data    :{
+                        id : subCatid,
+                    },
+                    success : function(response){
+                        // console.log(response);
+                        jQuery('#allSubCategory').html(response);
+                    },
+                });
+        });
+
+</script>
+```
+
+# Frontend code for category Search"
+```javascript
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Dynamic Dependency DropDown</title>
+  </head>
+  <body>
+
+    <div class="row m-5">
+        <div class="col-md-4">
+            <div class="form-group">
+                <select class="form-control" id="category">
+                    <option selected>Open this select menu</option>
+                    @foreach($categories as $category)
+                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                  </select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div id="allCategory">
+
+                //All Sub category will be showed in this div
+                
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div id="allSubCategory">
+
+                //All Sub Sub category will be showed in this div
+
+            </div>
+        </div>
+    </div>
+
+
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    {{-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script> --}}
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+</body>
+</html>
+```
+
+# Category Show
+```javascript
+@foreach($categories as $category)
+
+
+        <div>
+            <div class="card m-2" style="width: 18rem">
+                <img class="card-img-top" src="{{ asset('public/storage/category/',$category->icon) }}" alt="Card image cap">
+                <div class="card-body">
+                    <h5 class="card-title">{{ $category->name }}</h5>
+                    <a href="#" data-id = {{$category->id}} class="btn btn-sm btn-primary subCatView">View</a>
+                </div>
+            </div>
+        </div>
+
+
+@endforeach
+
+```
+
+# Sub SubCategory Show
+```javascript
+@foreach($subCategories as $subCategory)
+
+    <div class="card m-2" style="width: 18rem">
+        <img class="card-img-top" src="{{ asset('storage/category/',$subCategory->icon) }}" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">{{ $subCategory->name }}</h5>
+            <a href="#" data-id = {{$subCategory->id}} class="btn btn-sm btn-primary subCatView">View</a>
+        </div>
+    </div>
+
+@endforeach
+
+```
+
+
+## Screenshots
+
+![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+
